@@ -28,10 +28,10 @@ interface Resource {
 
 const resources: Array<Resource> = [
   {
-    href: '/contacts',
-    name: 'Contacts',
+    href: '/connections',
+    name: 'Connections',
     description:
-      'Learn about the contact model and how to create, retrieve, update, delete, and list contacts.',
+      'Manage your Power Platform environment connections with MFA support and secure authentication.',
     icon: UserIcon,
     pattern: {
       y: 16,
@@ -42,10 +42,10 @@ const resources: Array<Resource> = [
     },
   },
   {
-    href: '/conversations',
-    name: 'Conversations',
+    href: '/marketplace',
+    name: 'Tool Marketplace',
     description:
-      'Learn about the conversation model and how to create, retrieve, update, delete, and list conversations.',
+      'Discover and install tools from the marketplace to extend your Power Platform capabilities.',
     icon: ChatBubbleIcon,
     pattern: {
       y: -6,
@@ -56,10 +56,10 @@ const resources: Array<Resource> = [
     },
   },
   {
-    href: '/messages',
-    name: 'Messages',
+    href: '/security',
+    name: 'Security',
     description:
-      'Learn about the message model and how to create, retrieve, update, delete, and list messages.',
+      'Learn about the security architecture and tool isolation that keeps your data safe.',
     icon: EnvelopeIcon,
     pattern: {
       y: 32,
@@ -70,10 +70,10 @@ const resources: Array<Resource> = [
     },
   },
   {
-    href: '/groups',
-    name: 'Groups',
+    href: '/community',
+    name: 'Community',
     description:
-      'Learn about the group model and how to create, retrieve, update, delete, and list groups.',
+      'Join the community, contribute to the project, and get support from other users.',
     icon: UsersIcon,
     pattern: {
       y: 22,
@@ -84,8 +84,8 @@ const resources: Array<Resource> = [
 
 function ResourceIcon({ icon: Icon }: { icon: Resource['icon'] }) {
   return (
-    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-900/5 ring-1 ring-zinc-900/25 backdrop-blur-[2px] transition duration-300 group-hover:bg-white/50 group-hover:ring-zinc-900/25 dark:bg-white/7.5 dark:ring-white/15 dark:group-hover:bg-emerald-300/10 dark:group-hover:ring-emerald-400">
-      <Icon className="h-5 w-5 fill-zinc-700/10 stroke-zinc-700 transition-colors duration-300 group-hover:stroke-zinc-900 dark:fill-white/10 dark:stroke-zinc-400 dark:group-hover:fill-emerald-300/10 dark:group-hover:stroke-emerald-400" />
+    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-900/5 ring-1 ring-zinc-900/25 backdrop-blur-[2px] transition duration-300 group-hover:bg-white/50 group-hover:ring-zinc-900/25 dark:bg-white/7.5 dark:ring-white/15 dark:group-hover:bg-[#0078d4]/10 dark:group-hover:ring-[#2b88d8]">
+      <Icon className="h-5 w-5 fill-zinc-700/10 stroke-zinc-700 transition-colors duration-300 group-hover:stroke-zinc-900 dark:fill-white/10 dark:stroke-zinc-400 dark:group-hover:fill-[#0078d4]/10 dark:group-hover:stroke-[#2b88d8]" />
     </div>
   )
 }
@@ -113,7 +113,7 @@ function ResourcePattern({
         />
       </div>
       <motion.div
-        className="absolute inset-0 rounded-2xl bg-linear-to-r from-[#D7EDEA] to-[#F4FBDF] opacity-0 transition duration-300 group-hover:opacity-100 dark:from-[#202D2E] dark:to-[#303428]"
+        className="absolute inset-0 rounded-2xl bg-linear-to-r from-[#D4E9F7] to-[#E3F2FD] opacity-0 transition duration-300 group-hover:opacity-100 dark:from-[#1a2632] dark:to-[#1e3140]"
         style={style}
       />
       <motion.div

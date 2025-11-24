@@ -3,26 +3,26 @@ import { Heading } from '@/components/Heading'
 
 const guides = [
   {
-    href: '/authentication',
-    name: 'Authentication',
-    description: 'Learn how to authenticate your API requests.',
+    href: '/quickstart',
+    name: 'Quick Start',
+    description: 'Get up and running with Power Platform Tool Box in minutes.',
   },
   {
-    href: '/pagination',
-    name: 'Pagination',
-    description: 'Understand how to work with paginated responses.',
-  },
-  {
-    href: '/errors',
-    name: 'Errors',
+    href: '/tool-development',
+    name: 'Tool Development',
     description:
-      'Read about the different types of errors returned by the API.',
+      'Build tools for Power Platform Tool Box with our comprehensive API.',
   },
   {
-    href: '/webhooks',
-    name: 'Webhooks',
+    href: '/toolbox-development',
+    name: 'ToolBox Development',
+    description: 'Contribute to the Power Platform Tool Box platform itself.',
+  },
+  {
+    href: '/contributing',
+    name: 'Contributing',
     description:
-      'Learn how to programmatically configure webhooks for your app.',
+      'Learn how to contribute code, documentation, and ideas to PPTB.',
   },
 ]
 

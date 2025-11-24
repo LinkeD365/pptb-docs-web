@@ -1,0 +1,704 @@
+export const metadata = {
+  title: 'Architecture',
+  description: 'Understanding the architecture of Power Platform Tool Box - components, data flow, and design patterns',
+}
+
+export const sections = []
+
+# ToolBox Architecture
+
+A comprehensive guide to the architecture of Power Platform Tool Box - an Electron-based desktop application built with TypeScript, Vite, and a modular design. {{ className: 'lead' }}
+
+## Overview
+
+Power Platform Tool Box follows a modular architecture with clear separation between the main process, renderer process, and API layers. The application leverages Electron's multi-process model to ensure security, stability, and extensibility.
+
+### Technology Stack
+
+<Row>
+  <Col>
+    **Core Technologies**
+    - Electron v28 - Cross-platform framework
+    - TypeScript v5.9.3 - Type-safe development
+    - Vite v7.1.11 - Modern build tool
+    - pnpm v10.18.3+ - Package management
+  </Col>
+  <Col>
+    **Key Libraries**
+    - electron-store v8.2.0 - Persistent storage
+    - electron-updater v6.6.2 - Auto-updates
+    - @azure/msal-node v3.8.0 - Authentication
+    - @fluentui/tokens - Design system
+  </Col>
+</Row>
+
+## Architecture Diagram
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│                      Power Platform Tool Box                          │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  ┌──────────────────┐         ┌──────────────────────────┐          │
+│  │  Renderer Process│◄────────┤  IPC Communication       │          │
+│  │                  │         │  (contextBridge)         │          │
+│  │  - UI (HTML)     │─────────►                          │          │
+│  │  - SCSS Styles   │         └──────────────────────────┘          │
+│  │  - TypeScript    │                    │                           │
+│  │  - Tool Iframes  │                    ▼                           │
+│  └──────────────────┘         ┌────────────────────────┐            │
+│                                │   Main Process         │            │
+│                                │                        │            │
+│                                │  ┌──────────────────┐  │            │
+│  ┌──────────────┐              │  │   ToolBoxApp    │  │            │
+│  │ ToolBox API  │◄─────────────┤  │   Coordinator   │  │            │
+│  │              │              │  └────────┬─────────┘  │            │
+│  │ - Events     │              │           │            │            │
+│  │ - Notif.     │              │  ┌────────▼─────────┐  │            │
+│  └──────────────┘              │  │    Managers      │  │            │
+│                                │  │                  │  │            │
+│  ┌──────────────┐              │  │ - Settings      │  │            │
+│  │  Tool (npm)  │◄─────────────┤  │ - Connections   │  │            │
+│  │  - activate()│              │  │ - Tools         │  │            │
+│  │  - API calls │              │  │ - Auth (MSAL)   │  │            │
+│  │  - Isolated  │              │  │ - Dataverse API │  │            │
+│  └──────────────┘              │  │ - Terminal      │  │            │
+│                                │  │ - AutoUpdate    │  │            │
+│                                │  │ - Encryption    │  │            │
+│                                │  └──────────────────┘  │            │
+│                                └────────────────────────┘            │
+│                                           │                           │
+│                                           ▼                           │
+│                                ┌────────────────────┐                │
+│                                │   Secure Storage   │                │
+│                                │                    │                │
+│                                │ - Encrypted Tokens │                │
+│                                │ - Settings (JSON)  │                │
+│                                │ - Tool Storage     │                │
+│                                │ - OS Keychain      │                │
+│                                └────────────────────┘                │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+## Core Components
+
+### 1. Main Process (`src/main/`)
+
+The main process is the entry point of the Electron application and manages the application lifecycle.
+
+#### `index.ts`
+
+**Purpose:** Main application entry point
+
+**Responsibilities:**
+- Initialize Electron app
+- Create application window
+- Set up IPC handlers
+- Coordinate between managers
+
+#### Managers (`src/main/managers/`)
+
+The managers encapsulate specific functionality and provide clean separation of concerns:
+
+<Properties>
+  <Property name="settingsManager.ts">
+    **User Settings Management**
+    
+    - Theme, language, auto-update preferences
+    - Persistent storage using electron-store
+    - Integration with encryption for sensitive data
+  </Property>
+  
+  <Property name="connectionsManager.ts">
+    **Dataverse Connections**
+    
+    - CRUD operations for connections
+    - Active connection management
+    - Encrypted storage of credentials (clientId, clientSecret, tokens)
+    - Connection validation and testing
+  </Property>
+  
+  <Property name="toolsManager.ts">
+    **Tool Lifecycle Management**
+    
+    - Load/unload tools
+    - Install tools from registry (primary method)
+    - Install/uninstall via npm/pnpm (legacy, deprecated)
+    - Track loaded tools
+    - Parse contribution points from package.json
+    - Emit tool lifecycle events
+    - Provide tool context (without exposing access tokens)
+  </Property>
+  
+  <Property name="toolRegistryManager.ts">
+    **Tool Registry & Downloads**
+    
+    - Fetch tool registry from server (VS Code marketplace style)
+    - Download pre-built tool archives via HTTP/HTTPS
+    - Extract and cache tools locally
+    - Manage tool manifests (installation tracking)
+    - Check for tool updates
+    - Handle tool versioning
+    - No npm/pnpm dependency required
+  </Property>
+  
+  <Property name="authManager.ts">
+    **Authentication & Authorization**
+    
+    - Handle OAuth flows with Azure AD
+    - Manage access tokens for Dataverse connections
+    - MSAL integration for secure authentication
+    - Token refresh and caching
+    - Username/password authentication support
+  </Property>
+  
+  <Property name="dataverseManager.ts">
+    **Dataverse Web API Operations**
+    
+    - CRUD operations (create, retrieve, update, delete)
+    - FetchXML query execution
+    - Entity metadata retrieval
+    - Execute actions and functions
+    - Automatic token management and refresh
+    - HTTP client for Dataverse Web API
+    - OData v4.0 compliant requests
+    - Entity set name conversion (singular to plural)
+  </Property>
+  
+  <Property name="encryptionManager.ts">
+    **Encryption of Sensitive Data**
+    
+    - Encrypt/decrypt using OS-native secure storage
+    - macOS: Keychain, Windows: DPAPI, Linux: libsecret
+    - Encrypt connection credentials (clientId, clientSecret, tokens)
+    - Automatic migration of plain-text data
+    - Field-level encryption utilities
+  </Property>
+  
+  <Property name="terminalManager.ts">
+    **Terminal Management**
+    
+    - Create and manage terminal instances
+    - Execute shell commands
+    - Stream command output
+    - Handle multiple shell types (bash, zsh, powershell, cmd)
+    - Emit terminal events (created, output, completed, error)
+    - Context-aware terminal isolation per tool
+  </Property>
+  
+  <Property name="autoUpdateManager.ts">
+    **Application Auto-Updates**
+    
+    - Check for updates using electron-updater
+    - Download and install updates
+    - Notify users of available updates
+    - Periodic update checks (configurable interval)
+    - User control over update installation
+  </Property>
+</Properties>
+
+#### `preload.ts`
+
+**Purpose:** Secure bridge between main and renderer processes
+
+**Responsibilities:**
+- Expose safe APIs to renderer via contextBridge
+- IPC communication wrapper
+- Security isolation
+- Expose toolbox API methods to renderer
+- Expose dataverse API methods to renderer
+
+### 2. Renderer Process (`src/renderer/`)
+
+The renderer process handles the UI and user interactions.
+
+#### `index.html`
+
+**Purpose:** Application UI structure
+
+**Features:**
+- Multi-panel layout (Tools, Connections, Settings, Terminal)
+- Modal dialogs for tool installation and connections
+- Modern, responsive design
+- Tool iframes for isolated execution
+- Terminal panel with tabs
+
+#### `styles.scss` and `styles/`
+
+**Purpose:** Application styling with SCSS
+
+**Features:**
+- Modular SCSS architecture with variables and mixins
+- Fluent UI design tokens integration
+- CSS custom properties for theming
+- Responsive grid layouts
+- Clean, professional appearance
+- `_variables.scss`: SCSS variables (colors, spacing, typography)
+- `_mixins.scss`: Reusable SCSS mixins
+
+#### `renderer.ts`
+
+**Purpose:** UI logic and interactions (3,000+ lines)
+
+**Responsibilities:**
+- Handle user interactions
+- Communicate with main process via IPC
+- Update UI based on state changes
+- Manage modal dialogs
+- Load tools in iframes
+- Context-aware API message routing
+- Terminal UI management
+- Tool context injection
+
+#### `toolboxAPIBridge.js`
+
+**Purpose:** API bridge for tools running in iframes
+
+**Responsibilities:**
+- Expose `toolboxAPI` object to tools
+- Expose `dataverseAPI` object to tools
+- Handle postMessage communication
+- Auto-detect tool ID from context
+- Context-aware API calls (terminals, events)
+- Filter events relevant to specific tool
+
+### 3. API Layer (`src/api/`)
+
+#### `toolboxAPI.ts`
+
+**Purpose:** Event-driven API for tools and application
+
+**Responsibilities:**
+- Event emission and subscription
+- Notification system
+- Event history tracking
+- Communication hub for tools
+- Event types: tool lifecycle, connections, terminals, settings, notifications
+
+### 4. Type Definitions (`src/types/`)
+
+#### `index.ts`
+
+**Purpose:** Internal TypeScript type definitions
+
+**Contents:**
+- Tool interface with contribution points
+- Contribution point types (commands, menus, views, configuration)
+- Settings interfaces
+- Connection interfaces
+- Event types and payloads
+- Notification options
+- Terminal types
+- Tool context (without access token)
+
+### 5. Type Definitions Package (`packages/`)
+
+Separate npm package (`@pptoolbox/types`) for tool developers with TypeScript type definitions.
+
+#### `toolboxAPI.d.ts`
+
+**Purpose:** TypeScript definitions for toolbox API
+
+**Contents:**
+- Utils API (notifications, clipboard, file operations, theme)
+- Terminal API (create, execute, close, list, visibility)
+- Events API (on, off, getHistory)
+- Connections API (getActiveConnection)
+
+#### `dataverseAPI.d.ts`
+
+**Purpose:** TypeScript definitions for Dataverse API
+
+**Contents:**
+- CRUD operations (create, retrieve, update, delete)
+- Query operations (fetchXmlQuery, retrieveMultiple)
+- Metadata operations (getEntityMetadata, getAllEntitiesMetadata)
+- Execute operations (actions and functions)
+
+#### `index.d.ts`
+
+**Purpose:** Main export for all type definitions
+
+**Exports:** Both toolboxAPI and dataverseAPI types
+
+## Data Flow
+
+### Tool Installation Flow
+
+```
+User clicks "Install Tool"
+    ↓
+Renderer opens modal
+    ↓
+User enters package name
+    ↓
+Renderer → IPC → Main Process
+    ↓
+Tool Manager installs via pnpm (--dir flag for isolation)
+    ↓
+Tool Manager loads the tool
+    ↓
+Event emitted: tool:loaded
+    ↓
+ToolBox API broadcasts event
+    ↓
+Renderer updates UI
+```
+
+### Connection Creation Flow
+
+```
+User clicks "Add Connection"
+    ↓
+Renderer opens modal
+    ↓
+User enters connection details
+    ↓
+Renderer → IPC → Main Process
+    ↓
+Connections Manager saves connection
+    ↓
+Encryption Manager encrypts sensitive fields
+    ↓
+Event emitted: connection:created
+    ↓
+ToolBox API broadcasts event
+    ↓
+Renderer updates UI
+```
+
+### Context-Aware Tool API Flow
+
+```
+Tool (iframe) calls API
+    ↓
+toolboxAPIBridge.js auto-injects tool ID
+    ↓
+postMessage → Renderer Process
+    ↓
+Renderer routes based on tool context
+    ↓
+IPC → Main Process
+    ↓
+Manager executes with tool context
+    ↓
+Response → IPC → Renderer
+    ↓
+postMessage → Tool iframe
+    ↓
+Promise resolves in tool
+```
+
+## Security Model
+
+### Tool Isolation Architecture
+
+Power Platform Tool Box implements a secure iframe-based architecture for tool execution:
+
+#### Isolated Execution
+
+- Each tool runs in a separate iframe with limited API access
+- Tools cannot directly access the main application or other tools
+- Iframe isolation prevents memory leaks and crashes from affecting the main app
+- Tools only have access to explicitly exposed APIs
+
+#### Structured postMessage Protocol
+
+- All tool communication uses window.postMessage
+- Messages are validated for structure and content
+- Request/response pattern with unique message IDs
+- Context-aware message routing with automatic tool ID injection
+
+#### API Injection
+
+- Tools access `toolboxAPI` and `dataverseAPI` objects injected into iframe
+- The APIs are provided by `toolboxAPIBridge.js`
+- Tools only have access to the specific APIs exposed by ToolBox
+- No direct access to Node.js, Electron APIs, or other sensitive modules
+
+#### Context-Aware APIs
+
+- **Tool ID Auto-Detection:** Tools don't need to manually specify their ID
+- **Terminal Isolation:** Each tool only sees its own terminals
+- **Event Filtering:** Tools only receive events relevant to them
+- **No Token Exposure:** Tools cannot access raw access tokens
+
+#### Message Flow Example
+
+```
+Tool (iframe)              toolboxAPIBridge.js         Renderer Process          Main Process
+    |                              |                          |                        |
+    |--dataverseAPI.retrieve()---->|                          |                        |
+    |                              |--postMessage(with ID)--->|                        |
+    |                              |                          |--IPC(invoke)---------->|
+    |                              |                          |                        |--HTTP-->Dataverse
+    |                              |                          |<---IPC(response)-------|
+    |                              |<--postMessage------------|                        |
+    |<--promise resolved-----------|                          |                        |
+```
+
+### Encryption & Secure Storage
+
+#### OS-Native Encryption
+
+Uses Electron's `safeStorage` API for encryption:
+
+- **macOS:** Keychain
+- **Windows:** DPAPI (Data Protection API)
+- **Linux:** libsecret
+
+#### Encrypted Fields
+
+The following sensitive fields are encrypted:
+
+- `clientId` - OAuth client identifier
+- `clientSecret` - OAuth client secret
+- `accessToken` - Dataverse access token
+- `refreshToken` - Token refresh credentials
+- `password` - Username/password authentication
+
+#### Automatic Migration
+
+- Existing plain-text connections are automatically encrypted on first launch
+- No user intervention required
+- Backwards compatible with older versions
+
+### Context Isolation & Communication
+
+#### Context Isolation
+
+- Renderer process runs in isolated context
+- No direct access to Node.js APIs from tools
+- Communication only through preload script (for main UI) or postMessage (for tools)
+- Tools run in sandboxed iframes
+
+#### IPC Communication (Main UI ↔ Main Process)
+
+- All main-renderer communication via IPC
+- Handlers validate and sanitize input
+- Secure contextBridge API exposure in preload.ts
+
+#### postMessage Communication (Tools ↔ Renderer)
+
+- Tools communicate with renderer via window.postMessage
+- toolboxAPIBridge.js handles message routing
+- Context-aware: Tool ID automatically injected
+- Event filtering ensures tools only receive relevant events
+
+#### Settings Storage
+
+- electron-store provides JSON storage
+- Sensitive data encrypted using EncryptionManager
+- Settings stored in user data directory
+- Per-user, per-application isolation
+
+## Build Process
+
+### Build System
+
+- **Package Manager:** pnpm (v10.18.3+)
+- **Build Tool:** Vite (v7.1.11)
+- **Compiler:** TypeScript (v5.9.3)
+
+### Build Commands
+
+```bash
+pnpm install         # Install dependencies (~40s first time)
+pnpm run lint        # Lint TypeScript files (0 errors expected)
+pnpm run build       # Production build (2-5 seconds)
+pnpm run watch       # Watch mode for development
+pnpm run dev         # Development mode with Vite dev server
+pnpm start           # Run the built application
+pnpm run package     # Create distributable packages
+```
+
+### Vite Build Process
+
+Vite builds three separate bundles in parallel:
+
+1. **Main Process Build**
+   - Entry: `src/main/index.ts`
+   - Output: `dist/main/index.js`
+   - Bundles all managers and dependencies
+   - Includes rollup-plugin-visualizer for bundle analysis
+
+2. **Preload Script Build**
+   - Entry: `src/main/preload.ts`
+   - Output: `dist/main/preload.js`
+   - Secure bridge for IPC communication
+
+3. **Renderer Process Build**
+   - Entry: `src/renderer/index.html`
+   - Output: `dist/renderer/`
+   - Bundles TypeScript, compiles SCSS to CSS
+   - Code splitting: Vendor chunks separated
+   - Copies static assets (HTML, JSON, icons)
+
+### Bundle Analysis
+
+After `pnpm run build`, view bundle analysis reports:
+
+- `dist/stats-main.html` - Main process bundle analysis
+- `dist/stats-renderer.html` - Renderer process bundle analysis
+
+### Electron Packaging
+
+electron-builder creates installers:
+
+- **Windows:** NSIS installer
+- **macOS:** DMG disk image
+- **Linux:** AppImage
+
+### Output Structure
+
+```
+dist/
+├── main/
+│   ├── index.js              # Main process
+│   ├── preload.js            # Preload script
+│   └── managers/             # Manager modules
+├── renderer/
+│   ├── index.html            # UI entry point
+│   ├── assets/               # JavaScript and CSS bundles
+│   ├── icons/                # UI icons
+│   ├── tools.json            # Tool registry
+│   └── toolboxAPIBridge.js   # Tool API bridge
+└── stats-*.html              # Bundle analysis reports
+```
+
+## Terminal Integration
+
+The Terminal feature allows tools to create and manage their own terminal instances for executing commands.
+
+### Terminal Manager
+
+The `TerminalManager` provides:
+
+- **Terminal Creation:** Tools can create named terminals with custom shell preferences
+- **Command Execution:** Execute shell commands and receive real-time output
+- **Shell Selection:** Tools specify preferred shell with automatic fallback to system default
+- **Context-Aware:** Each tool only sees and manages its own terminals
+- **Event System:** Real-time events for terminal output, completion, and errors
+- **Lifecycle Management:** Proper cleanup and resource management
+- **Auto-Naming:** Terminals automatically named with tool name if not specified
+
+### Supported Shells
+
+- **Unix/Linux:** bash, zsh, sh
+- **macOS:** bash, zsh
+- **Windows:** PowerShell, cmd
+
+### Usage Example
+
+```typescript
+// Create a terminal (auto-named with tool name)
+const terminal = await toolboxAPI.terminal.create({
+    shell: "/bin/bash",
+});
+
+// Execute a command
+await toolboxAPI.terminal.execute(terminal.id, "ls -la");
+
+// Listen for output
+toolboxAPI.events.on((event, payload) => {
+    if (event === "terminal:output" && payload.id === terminal.id) {
+        console.log("Output:", payload.output);
+    }
+});
+
+// Close terminal when done
+await toolboxAPI.terminal.close(terminal.id);
+```
+
+## File Structure
+
+```
+desktop-app/
+├── src/
+│   ├── api/
+│   │   └── toolboxAPI.ts             # Event system and API
+│   ├── main/
+│   │   ├── index.ts                   # Main process entry
+│   │   ├── preload.ts                 # Secure IPC bridge
+│   │   ├── constants.ts               # App constants
+│   │   └── managers/
+│   │       ├── settingsManager.ts     # Settings management
+│   │       ├── connectionsManager.ts  # Connection management
+│   │       ├── toolsManager.ts        # Tool lifecycle
+│   │       ├── authManager.ts         # Authentication (MSAL)
+│   │       ├── dataverseManager.ts    # Dataverse API operations
+│   │       ├── encryptionManager.ts   # Secure encryption
+│   │       ├── terminalManager.ts     # Terminal management
+│   │       └── autoUpdateManager.ts   # Auto-updates
+│   ├── renderer/
+│   │   ├── index.html                 # UI structure
+│   │   ├── styles.scss                # Main stylesheet
+│   │   ├── styles/
+│   │   │   ├── _variables.scss        # SCSS variables
+│   │   │   └── _mixins.scss           # SCSS mixins
+│   │   ├── renderer.ts                # UI logic
+│   │   ├── types.d.ts                 # Renderer types
+│   │   ├── toolboxAPIBridge.js        # API bridge for tools
+│   │   ├── tools.json                 # Tool registry
+│   │   └── icons/                     # UI icons (light/dark themes)
+│   └── types/
+│       └── index.ts                   # Shared type definitions
+├── packages/                          # Type definitions package for tool developers
+│   ├── toolboxAPI.d.ts                # ToolBox API types
+│   ├── dataverseAPI.d.ts              # Dataverse API types
+│   ├── index.d.ts                     # Main export
+│   ├── package.json                   # Package metadata
+│   └── README.md                      # Tool developer documentation
+├── docs/                              # Documentation
+├── assets/
+│   └── icon.png                       # Application icon
+├── icons/
+│   ├── icon.ico                       # Windows icon
+│   ├── icon.icns                      # macOS icon
+│   └── icon256x256.png                # Linux icon
+├── dist/                              # Compiled output (gitignored)
+├── build/                             # Build artifacts (gitignored)
+├── node_modules/                      # Dependencies (gitignored)
+├── package.json                       # Dependencies and scripts
+├── pnpm-lock.yaml                     # pnpm lockfile
+├── tsconfig.json                      # TypeScript config (main/api)
+├── tsconfig.renderer.json             # TypeScript config (renderer)
+├── vite.config.ts                     # Vite build configuration
+└── CONTRIBUTING.md                    # Contribution guidelines
+```
+
+## Future Enhancements
+
+### Planned Features
+
+1. ✅ Tool Marketplace - Browse and install tools from a catalog
+2. Enhanced Tool Sandboxing - Additional security layers for third-party tools
+3. Multi-language Support - Internationalization (i18n)
+4. Theme Customization - User-defined themes and dark mode
+5. Enhanced Dataverse API - Batch requests, change tracking, upsert operations
+6. Testing Framework - Automated testing infrastructure
+7. Documentation Site - Comprehensive online documentation
+8. Plugin Versioning - Tool update management and version compatibility
+9. Sync Features - Sync local toolbox configuration across different machines without compromising security
+
+### Technical Debt
+
+1. Add comprehensive test coverage (unit, integration, E2E)
+2. Implement proper error boundaries in renderer
+3. Add structured logging system with log levels
+4. Implement tool verification/signing for security
+5. Add performance monitoring and metrics
+6. Improve bundle size optimization
+7. Add more comprehensive TypeScript types (reduce `any` usage)
+
+## Next Steps
+
+<div className="not-prose mb-16 mt-6 flex gap-3">
+  <Button href="/contributing" arrow="right">
+    <>Contributing Guidelines</>
+  </Button>
+  <Button href="/toolbox-development" variant="outline">
+    <>Development Setup</>
+  </Button>
+</div>

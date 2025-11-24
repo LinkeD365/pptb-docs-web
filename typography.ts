@@ -7,9 +7,9 @@ export default {
         css: {
           '--tw-prose-body': theme('colors.zinc.700'),
           '--tw-prose-headings': theme('colors.zinc.900'),
-          '--tw-prose-links': theme('colors.emerald.500'),
-          '--tw-prose-links-hover': theme('colors.emerald.600'),
-          '--tw-prose-links-underline': theme('colors.emerald.500 / 0.3'),
+          '--tw-prose-links': '#0078d4',
+          '--tw-prose-links-hover': '#106ebe',
+          '--tw-prose-links-underline': '#0078d4 / 0.3',
           '--tw-prose-bold': theme('colors.zinc.900'),
           '--tw-prose-counters': theme('colors.zinc.500'),
           '--tw-prose-bullets': theme('colors.zinc.300'),
@@ -25,11 +25,9 @@ export default {
 
           '--tw-prose-invert-body': theme('colors.zinc.400'),
           '--tw-prose-invert-headings': theme('colors.white'),
-          '--tw-prose-invert-links': theme('colors.emerald.400'),
-          '--tw-prose-invert-links-hover': theme('colors.emerald.500'),
-          '--tw-prose-invert-links-underline': theme(
-            'colors.emerald.500 / 0.3',
-          ),
+          '--tw-prose-invert-links': '#2b88d8',
+          '--tw-prose-invert-links-hover': '#4fa3e0',
+          '--tw-prose-invert-links-underline': '#2b88d8 / 0.3',
           '--tw-prose-invert-bold': theme('colors.white'),
           '--tw-prose-invert-counters': theme('colors.zinc.400'),
           '--tw-prose-invert-bullets': theme('colors.zinc.600'),

@@ -1,0 +1,260 @@
+export const metadata = {
+  title: 'Tool Development Guide',
+  description: 'Complete guide for developing tools for Power Platform Tool Box using webview-based architecture with secure APIs',
+}
+
+export const sections = []
+
+# Tool Development Guide
+
+Power Platform Tool Box provides a secure, extensible platform for creating custom tools as web applications. This guide will help you build, test, and publish your own tools. {{ className: 'lead' }}
+
+## Overview
+
+Tools are web applications that run in isolated environments and communicate with the ToolBox through secure APIs:
+
+- **Webview-Based**: Each tool runs in a sandboxed iframe with limited API access
+- **Organized APIs**: Namespaced APIs for connections, utilities, terminals, events, and Dataverse
+- **Secure Communication**: Structured message protocol via postMessage
+- **Context-Aware**: Tool ID and connection context automatically managed
+- **Type-Safe**: Full TypeScript support with `@pptb/types` package
+
+## API Architecture
+
+Tools have access to two main APIs:
+
+### ToolBox API (`window.toolboxAPI`)
+
+Organized into namespaces:
+
+- **connections** - Get active Dataverse connection (read-only)
+- **utils** - Notifications, clipboard, file operations, theme
+- **settings** - Tool-specific settings storage (context-aware)
+- **terminal** - Create and manage terminals (context-aware)
+- **events** - Subscribe to platform events (tool-specific)
+
+### Dataverse API (`window.dataverseAPI`)
+
+Complete HTTP client for Dataverse:
+
+- CRUD operations (create, retrieve, update, delete)
+- FetchXML queries
+- Metadata operations
+- Execute actions and functions
+
+## Quick Start
+
+### Prerequisites (Optional)
+
+Install Yeoman and the PPTB generator globally:
+
+```bash
+npm install -g yo generator-pptb
+```
+
+Or use npx without global installation:
+
+```bash
+npx --package yo --package generator-pptb -- yo pptb
+```
+
+### Create Your Tool Package
+
+```bash
+yo pptb
+# or
+yo pptb my-tool
+```
+
+Follow the prompts to generate your tool structure:
+
+```
+my-tool/
+├── package.json
+├── index.html
+├── styles.css
+├── app.ts
+└── README.md
+```
+
+### Define package.json
+
+```json
+{
+  "name": "@powerplatform/my-tool",
+  "version": "1.0.0",
+  "displayName": "My Tool",
+  "description": "Description of what your tool does",
+  "author": "Your Name",
+  "keywords": ["powerplatform", "dataverse", "toolbox"]
+}
+```
+
+### Install Type Definitions
+
+```bash
+npm install --save-dev @pptb/types
+```
+
+### Implement Your Tool
+
+**index.html:**
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Tool</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <h1>My Power Platform Tool</h1>
+    <div id="connection-info"></div>
+    <button id="test-btn">Test API</button>
+    <div id="output"></div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
+```
+
+**app.ts:**
+```typescript
+/// <reference types="@pptb/types" />
+
+async function initialize() {
+  try {
+    // Get active connection
+    const connection = await toolboxAPI.connections.getActiveConnection();
+    
+    if (connection) {
+      document.getElementById('connection-info')!.textContent = 
+        `Connected to: ${connection.name} (${connection.environment})`;
+    }
+    
+    // Subscribe to events
+    toolboxAPI.events.on((event, payload) => {
+      console.log('Event received:', payload.event, payload.data);
+      
+      if (payload.event === 'connection:updated') {
+        initialize();
+      }
+    });
+    
+    // Show notification
+    await toolboxAPI.utils.showNotification({
+      title: 'Tool Loaded',
+      body: 'My tool is ready!',
+      type: 'success',
+      duration: 3000
+    });
+  } catch (error) {
+    console.error('Initialization error:', error);
+  }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initialize);
+} else {
+  initialize();
+}
+```
+
+## Testing Your Tool
+
+### Local Development
+
+1. **Build your tool:**
+   ```bash
+   npm run build
+   ```
+
+2. **Start watch mode** (optional but recommended):
+   ```bash
+   npm run build -- --watch
+   ```
+
+3. **Load in ToolBox:**
+   - Open Power Platform Tool Box
+   - Navigate to Debug section
+   - Click **Browse** in "Load Local Tool"
+   - Select your tool's root directory
+   - Click **Load Tool**
+
+4. **Test and iterate:**
+   - Make changes to your source files
+   - Close the tool tab in ToolBox
+   - Reopen from sidebar to see changes
+
+## Publishing Your Tool
+
+### 1. Build your tool
+
+```bash
+npm run build
+```
+
+### 2. Prepare for Publishing
+
+Ensure your `package.json` has all required fields:
+
+```json
+{
+  "name": "@org-name/my-tool",
+  "version": "1.0.0",
+  "displayName": "My Tool",
+  "description": "Clear description of what your tool does",
+  "main": "index.html",
+  "author": "Your Name",
+  "keywords": ["powerplatform", "dataverse", "toolbox"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/your-tool"
+  },
+  "license": "MIT"
+}
+```
+
+### 3. Finalize package for publishing
+
+```bash
+npm run finalize-package
+```
+
+### 4. Publish to npm
+
+```bash
+npm login
+npm publish --access public
+```
+
+### 5. Submit to ToolBox Registry
+
+Visit the [Tool Submission Form](https://github.com/PowerPlatformToolBox/pptb-web/issues/new?template=tool-submission.yml) and provide:
+
+- npm package name
+- Display name
+- Description
+- GitHub repository URL
+- Tags/categories
+
+## Next Steps
+
+<div className="not-prose mb-16 mt-6 flex gap-3">
+  <Button href="/tool-development/api-reference" arrow="right">
+    <>API Reference</>
+  </Button>
+  <Button href="/tool-development/examples" variant="outline">
+    <>View Examples</>
+  </Button>
+</div>
+
+## Resources
+
+- **[Sample Tools Repository](https://github.com/PowerPlatformToolBox/sample-tools)** - Complete examples with different frameworks
+- **[Documentation](https://github.com/PowerPlatform-ToolBox/desktop-app)** - Full documentation on GitHub
+- **[Issues](https://github.com/PowerPlatform-ToolBox/desktop-app/issues)** - Report bugs or request features
+- **[Discussions](https://github.com/PowerPlatform-ToolBox/desktop-app/discussions)** - Ask questions and share ideas

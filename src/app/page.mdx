@@ -1,11 +1,11 @@
 import { Guides } from '@/components/Guides'
-import { Resources } from '@/components/Resources'
 import { HeroPattern } from '@/components/HeroPattern'
+import { Resources } from '@/components/Resources'
 
 export const metadata = {
-  title: 'API Documentation',
+  title: 'Power Platform Tool Box Documentation',
   description:
-    'Learn everything there is to know about the Protocol API and integrate Protocol into your product.',
+    'Learn everything about Power Platform Tool Box - the modern toolbox for Power Platform, built for speed, simplicity and security.',
 }
 
 export const sections = [
@@ -15,26 +15,50 @@ export const sections = [
 
 <HeroPattern />
 
-# API Documentation
+# Power Platform Tool Box
 
-Use the Protocol API to access contacts, conversations, group messages, and more and seamlessly integrate your product into the workflows of dozens of devoted Protocol users. {{ className: 'lead' }}
+The modern toolbox for Power Platform makers, admins, and developers. Discover, run, and manage tools in a streamlined, isolated environment with hassle-free connections and secure-by-design architecture. {{ className: 'lead' }}
 
 <div className="not-prose mt-6 mb-16 flex gap-3">
   <Button href="/quickstart" arrow="right">
-    <>Quickstart</>
+    Get Started
   </Button>
-  <Button href="/sdks" variant="outline">
-    <>Explore SDKs</>
+  <Button href="https://github.com/PowerPlatformToolBox/desktop-app" variant="outline">
+    View on GitHub
   </Button>
 </div>
 
 ## Getting started {{ anchor: false }}
 
-To get started, create a new application in your [developer settings](#), then read about how to make requests for the resources you need to access using our HTTP APIs or dedicated client SDKs. When your integration is ready to go live, publish it to our [integrations directory](#) to reach the Protocol community. {{ className: 'lead' }}
+Power Platform Tool Box is an Electron-based desktop application that provides a secure, extensible platform for running tools against your Power Platform environments. Whether you're a user looking to leverage existing tools, a developer building new tools, or a contributor enhancing the platform, we have documentation for you. {{ className: 'lead' }}
+
+### For Users
+
+Download and install Power Platform Tool Box for your platform. Browse the marketplace to discover and install tools, connect to your Power Platform environment using interactive login (MFA supported), and start building better solutions.
 
 <div className="not-prose">
-  <Button href="/sdks" variant="text" arrow="right">
-    <>Get your API key</>
+  <Button href="https://github.com/PowerPlatformToolBox/desktop-app/releases" variant="text" arrow="right">
+    Download Latest Release
+  </Button>
+</div>
+
+### For Tool Developers
+
+Build tools that extend Power Platform Tool Box capabilities. Use our comprehensive ToolBox API and Dataverse API to create tools that help Power Platform practitioners be more productive.
+
+<div className="not-prose">
+  <Button href="/tool-development" variant="text" arrow="right">
+    Start Building Tools
+  </Button>
+</div>
+
+### For Platform Contributors
+
+Contribute to the Power Platform Tool Box platform itself. Help us build features, fix bugs, improve documentation, and shape the future of the platform.
+
+<div className="not-prose">
+  <Button href="/toolbox-development" variant="text" arrow="right">
+    Contribute to PPTB
   </Button>
 </div>
 

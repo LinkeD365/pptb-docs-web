@@ -9,9 +9,11 @@ import '@/styles/tailwind.css'
 
 export const metadata: Metadata = {
   title: {
-    template: '%s - Protocol API Reference',
-    default: 'Protocol API Reference',
+    template: '%s - Power Platform Tool Box',
+    default: 'Power Platform Tool Box - Documentation',
   },
+  description:
+    'Documentation for Power Platform Tool Box - The modern toolbox for Power Platform, built for speed, simplicity and security.',
 }
 
 export default async function RootLayout({
@@ -30,7 +32,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
-      <body className="flex min-h-full bg-white antialiased dark:bg-zinc-900">
+      <body className="flex min-h-full bg-white antialiased dark:bg-[#1e1e1e]">
         <Providers>
           <div className="w-full">
             <Layout allSections={allSections}>{children}</Layout>

@@ -77,7 +77,7 @@ function CopyButton({ code }: { code: string }) {
       className={clsx(
         'group/button absolute top-3.5 right-4 overflow-hidden rounded-full py-1 pr-3 pl-2 text-2xs font-medium opacity-0 backdrop-blur-sm transition group-hover:opacity-100 focus:opacity-100',
         copied
-          ? 'bg-emerald-400/10 ring-1 ring-emerald-400/20 ring-inset'
+          ? 'bg-[#0078d4]/10 ring-1 ring-[#0078d4]/20 ring-inset'
           : 'bg-white/5 hover:bg-white/7.5 dark:bg-white/2.5 dark:hover:bg-white/5',
       )}
       onClick={() => {
@@ -142,9 +142,11 @@ function CodePanel({
   label?: string
   code?: string
 }) {
-  let child = Children.only(children)
+  // Handle both single child and array of children
+  let childrenArray = Children.toArray(children)
+  let child = childrenArray.length === 1 ? childrenArray[0] : null
 
-  if (isValidElement(child)) {
+  if (child && isValidElement(child)) {
     const props = child.props as { tag?: string; label?: string; code?: string }
     tag = props.tag ?? tag
     label = props.label ?? label

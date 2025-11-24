@@ -1,98 +1,146 @@
 export const metadata = {
-  title: 'Quickstart',
+  title: 'Quick Start',
   description:
-    'This guide will get you all set up and ready to use the Protocol API. We’ll cover how to get started an API client and how to make your first API request.',
+    'Get started with Power Platform Tool Box in minutes - download, install, and connect to your Power Platform environment.',
 }
 
-# Quickstart
+export const sections = []
 
-This guide will get you all set up and ready to use the Protocol API. We'll cover how to get started using one of our API clients and how to make your first API request. We'll also look at where to go next to find all the information you need to take full advantage of our powerful REST API. {{ className: 'lead' }}
+# Quick Start
+
+Get up and running with Power Platform Tool Box in just a few minutes. This guide covers installation, connecting to your Power Platform environment, and installing your first tool. {{ className: 'lead' }}
+
+## Step 1: Download and Install based on your operating system:
+
+<Row>
+  <Col>
+    **Windows**
+    - Download the `.exe` installer
+    - Run the installer and follow prompts
+    - Launch from Start Menu or Desktop
+  </Col>
+  <Col>
+    **macOS**
+    - Download the `.dmg` disk image
+    - Open and drag to Applications
+    - Launch from Applications folder
+  </Col>
+  <Col>
+    **Linux**
+    - Download the `.AppImage` file
+    - Make it executable: `chmod +x *.AppImage`
+    - Run the AppImage
+  </Col>
+</Row>
+
+<div className="not-prose mt-6">
+  <Button href="https://github.com/PowerPlatformToolBox/desktop-app/releases" variant="text" arrow="right">
+    <>Download Latest Release</>
+  </Button>
+</div>
 
 <Note>
-  Before you can make requests to the Protocol API, you will need to grab your
-  API key from your dashboard. You find it under [Settings &raquo; API](#).
+  **⚠️ macOS Users:** If you see a 'damaged' or 'unidentified developer' warning after installation, run the following command in Terminal:
+  
+  ```bash
+  xattr -cr "/Applications/Power Platform Tool Box.app"
+  ```
 </Note>
 
-## Choose your client
+<Note>
+  Power Platform Tool Box requires Node.js 18+ for tool execution. It will be automatically detected or you can configure the path in Settings.
+</Note>
 
-Before making your first API request, you need to pick which API client you will use. In addition to good ol' cURL HTTP requests, Protocol offers clients for JavaScript, Python, and PHP. In the following example, you can see how to install each client.
+## Step 2: Connect to Power Platform
 
-<CodeGroup>
+Power Platform Tool Box supports multiple authentication methods:
 
-```bash {{ title: 'cURL' }}
-# cURL is most likely already installed on your machine
-curl --version
-```
+### Interactive Login (Recommended)
 
-```bash {{ language: 'js' }}
-# Install the Protocol JavaScript SDK
-npm install @example/protocol-api --save
-```
+1. Click **"Add Connection"** in the Connections panel
+2. Enter your **Environment URL** (e.g., `https://org.crm.dynamics.com`)
+3. Select **"Interactive Login"**
+4. Click **"Connect"**
+5. A browser window opens for Microsoft authentication
+6. Sign in with your credentials (MFA supported)
+7. Grant consent when prompted
+8. Connection is saved with encrypted tokens
 
-```bash {{ language: 'python' }}
-# Install the Protocol Python SDK
-pip install protocol_api
-```
+### OAuth App Registration
 
-```bash {{ language: 'php' }}
-# Install the Protocol PHP SDK
-composer require protocol/sdk
-```
+For automated scenarios or service principals:
 
-</CodeGroup>
+1. Register an app in Azure AD
+2. Add Dataverse API permissions
+3. Create client secret
+4. In PPTB, choose **"OAuth (Client Secret)"**
+5. Enter: Environment URL, Client ID, Client Secret, Tenant ID
+6. Click **"Connect"**
 
-<div className="not-prose">
-  <Button href="/sdks" variant="text" arrow="right">
-    <>Check out our list of first-party SDKs</>
+### Username/Password
+
+<Note>
+  Only use for development/testing. Not recommended for production.
+</Note>
+
+1. Choose **"Username/Password"**
+2. Enter: Environment URL, Username, Password
+3. Click **"Connect"**
+
+<div className="not-prose mt-6">
+  <Button href="/authentication" variant="text" arrow="right">
+    <>Learn more about authentication</>
   </Button>
 </div>
 
-## Making your first API request
+## Step 3: Install Your First Tool
 
-After picking your preferred client, you are ready to make your first call to the Protocol API. Below, you can see how to send a GET request to the Conversations endpoint to get a list of all your conversations. In the cURL example, results are limited to ten conversations, the default page length for each client.
+Browse and install tools from the marketplace:
 
-<CodeGroup tag="GET" label="/v1/conversations">
+1. Click **"Tool Marketplace"** in the sidebar
+2. Browse available tools or search by name
+3. Click on a tool to view details
+4. Click **"Install"** to download and install
+5. Tool appears in the **"Tools"** panel
+6. Click the tool to launch it in the workspace
 
-```bash {{ title: 'cURL' }}
-curl -G https://api.protocol.chat/v1/conversations \
-  -H "Authorization: Bearer {token}" \
-  -d limit=10
-```
+<Note>
+  Tools are downloaded from the PPTB registry as pre-built packages. No npm/pnpm required on your machine!
+</Note>
 
-```js
-import ApiClient from '@example/protocol-api'
+## What's Next?
 
-const client = new ApiClient(token)
+Great! You're now set up with Power Platform Tool Box and ready to be more productive. Here are some recommended next steps:
 
-await client.conversations.list()
-```
+### For Users
 
-```python
-from protocol_api import ApiClient
+- Explore the tool marketplace for tools that match your needs
+- Configure settings (theme, auto-updates, terminal preferences)
+- Add multiple connections for different environments
+- Learn about security features and encrypted storage
 
-client = ApiClient(token)
+### For Tool Developers
 
-client.conversations.list()
-```
+- Learn how to build your own tools using the ToolBox API
+- Understand the Dataverse API for querying data
+- Publish your tools to npm and submit to the registry
+- Check out example tools for inspiration
 
-```php
-$client = new \Protocol\ApiClient($token);
-
-$client->conversations->list();
-```
-
-</CodeGroup>
-
-<div className="not-prose">
-  <Button href="/conversations" variant="text" arrow="right">
-    <>Read the docs for the Conversations endpoint</>
+<div className="not-prose mt-6">
+  <Button href="/tool-development" variant="text" arrow="right">
+    <>Start building tools</>
   </Button>
 </div>
 
-## What's next?
+### For Contributors
 
-Great, you're now set up with an API client and have made your first request to the API. Here are a few links that might be handy as you venture further into the Protocol API:
+- Set up the development environment
+- Understand the application architecture
+- Learn the contribution workflow and PR requirements
+- Find issues to work on or propose new features
 
-- [Grab your API key from the Protocol dashboard](#)
-- [Check out the Conversations endpoint](/conversations)
-- [Learn about the different error messages in Protocol](/errors)
+<div className="not-prose mt-6">
+  <Button href="/contributing" variant="text" arrow="right">
+    <>Contribute to PPTB</>
+  </Button>
+</div>

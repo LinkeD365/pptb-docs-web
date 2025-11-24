@@ -1,0 +1,469 @@
+export const metadata = {
+  title: 'API Reference',
+  description: 'Complete API reference for ToolBox API and Dataverse API available to tool developers',
+}
+
+export const sections = []
+
+# API Reference
+
+Comprehensive reference for the ToolBox API and Dataverse API available to all tools running in Power Platform Tool Box. {{ className: 'lead' }}
+
+<Note>
+  For complete TypeScript definitions, install the `@pptb/types` package:
+  ```bash
+  npm install --save-dev @pptb/types
+  ```
+</Note>
+
+## ToolBox API
+
+The ToolBox API provides access to platform features and utilities.
+
+### Connections
+
+Get information about the active Dataverse connection.
+
+#### `toolboxAPI.connections.getActiveConnection()`
+
+Returns the currently active connection or null if none is selected.
+
+```typescript
+const connection = await toolboxAPI.connections.getActiveConnection();
+
+if (connection) {
+  console.log('Connected to:', connection.name);
+  console.log('Environment:', connection.environment);
+  console.log('API URL:', connection.apiUrl);
+} else {
+  console.log('No active connection');
+}
+```
+
+**Returns:** `Promise<DataverseConnection | null>`
+
+```typescript
+interface DataverseConnection {
+  id: string;
+  name: string;
+  environment: string;
+  apiUrl: string;
+  version: string;
+  isDefault?: boolean;
+}
+```
+
+### Utils
+
+Utility functions for notifications, clipboard, file operations, and more.
+
+#### `toolboxAPI.utils.showNotification(options)`
+
+Display a notification to the user.
+
+```typescript
+await toolboxAPI.utils.showNotification({
+  title: 'Success',
+  body: 'Operation completed successfully',
+  type: 'success',
+  duration: 3000 // Auto-dismiss after 3 seconds
+});
+```
+
+**Parameters:**
+- `options` - Notification configuration object
+
+**Types:**
+- `type`: `'info' | 'success' | 'warning' | 'error'`
+- `duration`: Number in milliseconds (0 = persistent)
+
+#### `toolboxAPI.utils.copyToClipboard(text)`
+
+Copy text to the system clipboard.
+
+```typescript
+const data = JSON.stringify({ accounts: [], contacts: [] }, null, 2);
+await toolboxAPI.utils.copyToClipboard(data);
+
+await toolboxAPI.utils.showNotification({
+  title: 'Copied',
+  body: 'Data copied to clipboard',
+  type: 'success'
+});
+```
+
+#### `toolboxAPI.utils.saveFile(filename, content)`
+
+Save content to a file with user-selected location.
+
+```typescript
+const jsonData = { accounts: [], contacts: [] };
+const filePath = await toolboxAPI.utils.saveFile(
+  'export.json',
+  JSON.stringify(jsonData, null, 2)
+);
+
+if (filePath) {
+  console.log('File saved to:', filePath);
+} else {
+  console.log('Save cancelled');
+}
+```
+
+**Returns:** `Promise<string | null>` - File path or null if cancelled
+
+#### `toolboxAPI.utils.getCurrentTheme()`
+
+Get the current application theme.
+
+```typescript
+const theme = await toolboxAPI.utils.getCurrentTheme();
+document.body.classList.add(`theme-${theme}`);
+```
+
+**Returns:** `Promise<'light' | 'dark'>`
+
+#### `toolboxAPI.utils.showLoading(message)` / `hideLoading()`
+
+Show/hide a loading overlay.
+
+```typescript
+await toolboxAPI.utils.showLoading('Fetching data from Dataverse...');
+
+try {
+  // Perform long-running operations
+  const data = await fetchLargeDataset();
+  processData(data);
+  
+  await toolboxAPI.utils.showNotification({
+    title: 'Success',
+    body: 'Data processed successfully',
+    type: 'success'
+  });
+} finally {
+  await toolboxAPI.utils.hideLoading();
+}
+```
+
+#### `toolboxAPI.utils.executeParallel(...promises)`
+
+Execute multiple async operations in parallel.
+
+```typescript
+const [account, contact, opportunities] = await toolboxAPI.utils.executeParallel(
+  dataverseAPI.retrieve('account', accountId, ['name']),
+  dataverseAPI.retrieve('contact', contactId, ['fullname']),
+  dataverseAPI.fetchXmlQuery(opportunityFetchXml)
+);
+
+console.log('All data fetched:', account, contact, opportunities);
+```
+
+### Settings
+
+Store and retrieve tool-specific settings.
+
+#### `toolboxAPI.settings.get(key, defaultValue?)`
+
+Retrieve a setting value for your tool.
+
+```typescript
+const theme = await toolboxAPI.settings.get('theme', 'light');
+const pageSize = await toolboxAPI.settings.get('pageSize', 25);
+```
+
+#### `toolboxAPI.settings.set(key, value)`
+
+Save a setting value for your tool.
+
+```typescript
+await toolboxAPI.settings.set('theme', 'dark');
+await toolboxAPI.settings.set('pageSize', 50);
+```
+
+#### `toolboxAPI.settings.remove(key)`
+
+Remove a setting.
+
+```typescript
+await toolboxAPI.settings.remove('theme');
+```
+
+#### `toolboxAPI.settings.clear()`
+
+Clear all settings for your tool.
+
+```typescript
+await toolboxAPI.settings.clear();
+```
+
+### Terminal
+
+Create and manage terminal sessions (context-aware to your tool).
+
+#### `toolboxAPI.terminal.create(options)`
+
+Create a new terminal.
+
+```typescript
+const terminal = await toolboxAPI.terminal.create({
+  name: 'Build Terminal',
+  cwd: '/path/to/project',
+  env: {
+    NODE_ENV: 'production'
+  }
+});
+
+console.log('Terminal created:', terminal.id);
+```
+
+#### `toolboxAPI.terminal.execute(terminalId, command)`
+
+Execute a command in a terminal.
+
+```typescript
+const result = await toolboxAPI.terminal.execute(terminal.id, 'npm install');
+
+if (result.exitCode === 0) {
+  console.log('Command completed successfully');
+} else {
+  console.error('Command failed:', result.error);
+}
+```
+
+#### `toolboxAPI.terminal.setVisibility(terminalId, visible)`
+
+Show or hide a terminal's UI panel.
+
+```typescript
+await toolboxAPI.terminal.setVisibility(terminal.id, true);
+```
+
+#### `toolboxAPI.terminal.list()`
+
+List all terminals created by your tool.
+
+```typescript
+const terminals = await toolboxAPI.terminal.list();
+console.log(`This tool has ${terminals.length} terminals`);
+```
+
+#### `toolboxAPI.terminal.close(terminalId)`
+
+Close a terminal.
+
+```typescript
+await toolboxAPI.terminal.close(terminal.id);
+```
+
+### Events
+
+Subscribe to platform events.
+
+#### `toolboxAPI.events.on(handler)`
+
+Subscribe to events relevant to your tool.
+
+```typescript
+toolboxAPI.events.on((event, payload) => {
+  console.log('Event:', payload.event, 'Data:', payload.data);
+  
+  switch (payload.event) {
+    case 'connection:updated':
+      refreshConnectionInfo();
+      break;
+    case 'connection:activated':
+      handleConnectionActivated(payload.data);
+      break;
+    case 'theme:changed':
+      applyTheme(payload.data.theme);
+      break;
+  }
+});
+```
+
+**Event Types:**
+- `connection:updated` - Active connection changed
+- `connection:activated` - Connection activated
+- `connection:deactivated` - Connection deactivated
+- `theme:changed` - Theme switched
+- `tool:activated` - Your tool tab activated
+- `tool:deactivated` - Your tool tab deactivated
+
+## Dataverse API
+
+Complete HTTP client for interacting with Microsoft Dataverse.
+
+### CRUD Operations
+
+#### `dataverseAPI.create(entityName, data)`
+
+Create a new record.
+
+```typescript
+const accountId = await dataverseAPI.create('account', {
+  name: 'Contoso Ltd',
+  telephone1: '555-1234',
+  websiteurl: 'https://contoso.com'
+});
+
+console.log('Created account:', accountId);
+```
+
+#### `dataverseAPI.retrieve(entityName, id, columns?)`
+
+Retrieve a single record.
+
+```typescript
+const account = await dataverseAPI.retrieve(
+  'account',
+  accountId,
+  ['name', 'telephone1', 'emailaddress1']
+);
+
+console.log('Account name:', account.name);
+```
+
+#### `dataverseAPI.update(entityName, id, data)`
+
+Update an existing record.
+
+```typescript
+await dataverseAPI.update('account', accountId, {
+  telephone1: '555-5678',
+  websiteurl: 'https://www.contoso.com'
+});
+```
+
+#### `dataverseAPI.delete(entityName, id)`
+
+Delete a record.
+
+```typescript
+await dataverseAPI.delete('account', accountId);
+```
+
+### Queries
+
+#### `dataverseAPI.fetchXmlQuery(fetchXml)`
+
+Execute a FetchXML query.
+
+```typescript
+const fetchXml = `
+  <fetch top="10">
+    <entity name="account">
+      <attribute name="name" />
+      <attribute name="accountid" />
+      <filter>
+        <condition attribute="statecode" operator="eq" value="0" />
+      </filter>
+      <order attribute="name" />
+    </entity>
+  </fetch>
+`;
+
+const result = await dataverseAPI.fetchXmlQuery(fetchXml);
+
+result.value.forEach(account => {
+  console.log('Account:', account.name);
+});
+```
+
+#### `dataverseAPI.retrieveMultiple(entityName, options)`
+
+Retrieve multiple records with OData query options.
+
+```typescript
+const accounts = await dataverseAPI.retrieveMultiple('account', {
+  select: ['name', 'accountid'],
+  filter: "statecode eq 0",
+  orderBy: ['name'],
+  top: 10
+});
+
+console.log(`Found ${accounts.value.length} accounts`);
+```
+
+### Metadata
+
+#### `dataverseAPI.getEntityMetadata(entityName)`
+
+Get entity metadata.
+
+```typescript
+const metadata = await dataverseAPI.getEntityMetadata('account');
+
+console.log('Display Name:', metadata.DisplayName.UserLocalizedLabel.Label);
+console.log('Primary Key:', metadata.PrimaryIdAttribute);
+```
+
+#### `dataverseAPI.getEntityAttributes(entityName)`
+
+Get all attributes for an entity.
+
+```typescript
+const attributes = await dataverseAPI.getEntityAttributes('account');
+
+attributes.forEach(attr => {
+  console.log(`${attr.LogicalName}: ${attr.AttributeType}`);
+});
+```
+
+### Actions & Functions
+
+#### `dataverseAPI.executeAction(actionName, parameters)`
+
+Execute a custom action.
+
+```typescript
+const result = await dataverseAPI.executeAction('new_CustomAction', {
+  InputParameter1: 'value1',
+  InputParameter2: 123
+});
+
+console.log('Action result:', result);
+```
+
+#### `dataverseAPI.executeFunction(functionName, parameters)`
+
+Execute a custom function.
+
+```typescript
+const result = await dataverseAPI.executeFunction('new_CustomFunction', {
+  Parameter1: 'value'
+});
+
+console.log('Function result:', result);
+```
+
+## Error Handling
+
+All API calls may throw errors. Always use try-catch blocks:
+
+```typescript
+try {
+  const account = await dataverseAPI.retrieve('account', accountId);
+  // Process account
+} catch (error) {
+  console.error('Failed to retrieve account:', error);
+  
+  await toolboxAPI.utils.showNotification({
+    title: 'Error',
+    body: error.message,
+    type: 'error',
+    duration: 0 // Persistent
+  });
+}
+```
+
+## Next Steps
+
+<div className="not-prose mb-16 mt-6 flex gap-3">
+  <Button href="/tool-development/examples" arrow="right">
+    <>View Examples</>
+  </Button>
+  <Button href="/tool-development/best-practices" variant="outline">
+    <>Best Practices</>
+  </Button>
+</div>

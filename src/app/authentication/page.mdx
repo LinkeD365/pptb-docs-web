@@ -1,41 +1,254 @@
 export const metadata = {
   title: 'Authentication',
   description:
-    'In this guide, we’ll look at how authentication works. Protocol offers two ways to authenticate your API requests: Basic authentication and OAuth2 with a token.',
+    'Learn how to authenticate Power Platform Tool Box with your Dataverse environments using interactive login, OAuth app registration, or username/password.',
 }
+
+export const sections = []
 
 # Authentication
 
-You'll need to authenticate your requests to access any of the endpoints in the Protocol API. In this guide, we'll look at how authentication works. Protocol offers two ways to authenticate your API requests: Basic authentication and OAuth2 with a token — OAuth2 is the recommended way. {{ className: 'lead' }}
+Connect Power Platform Tool Box to your Dataverse environments securely. This guide covers all authentication methods, security features, and best practices. {{ className: 'lead' }}
 
-## Basic authentication
+## Authentication Methods
 
-With basic authentication, you use your username and password to authenticate your HTTP requests. Unless you have a very good reason, you probably shouldn't use basic auth. Here's how to authenticate using cURL:
+Power Platform Tool Box supports three authentication methods for connecting to Dataverse environments:
 
-```bash {{ title: 'Example request with basic auth' }}
-curl https://api.protocol.chat/v1/conversations \
-  -u username:password
+### Interactive Login (Recommended)
+
+**Best for:** End users, interactive scenarios, MFA-enabled accounts
+
+Interactive login uses Microsoft's OAuth 2.0 flow with the Microsoft Authentication Library (MSAL):
+
+1. User initiates connection
+2. Browser opens Microsoft login page
+3. User authenticates (supports MFA, Conditional Access)
+4. Consent is granted to PPTB
+5. Access and refresh tokens are securely stored
+
+**Benefits:**
+- Most secure method
+- Supports Multi-Factor Authentication (MFA)
+- Supports Conditional Access policies
+- No need to handle credentials
+- Automatic token refresh
+
+**Setup:**
+```
+Environment URL: https://org.crm.dynamics.com
+Auth Method: Interactive Login
 ```
 
-Please don't commit your Protocol password to GitHub!
+<Note>
+  Interactive login is the recommended method for most users. It provides the highest security and best user experience.
+</Note>
 
-## OAuth2 with bearer token
+### OAuth App Registration
 
-The recommended way to authenticate with the Protocol API is by using OAuth2. When establishing a connection using OAuth2, you will need your access token — you will find it in the [Protocol dashboard](#) under API settings. Here's how to add the token to the request header using cURL:
+**Best for:** Automation, service principals, CI/CD pipelines, background processes
 
-```bash {{ title: 'Example request with bearer token' }}
-curl https://api.protocol.chat/v1/conversations \
-  -H "Authorization: Bearer {token}"
+Use an Azure AD application registration with client credentials:
+
+**Prerequisites:**
+1. Register app in Azure AD:
+   - Go to Azure Portal → Azure Active Directory → App registrations
+   - Click "New registration"
+   - Name: `PowerPlatformToolBox`
+   - Supported account types: Choose appropriate option
+   - Redirect URI: Leave blank
+
+2. Configure API permissions:
+   - Add "Dynamics CRM" → "user_impersonation"
+   - Grant admin consent
+
+3. Create client secret:
+   - Go to Certificates & secrets
+   - New client secret
+   - Copy the secret value immediately
+
+**Setup:**
+```
+Environment URL: https://org.crm.dynamics.com
+Auth Method: OAuth (Client Secret)
+Client ID: 00000000-0000-0000-0000-000000000000
+Client Secret: your-secret-value
+Tenant ID: 00000000-0000-0000-0000-000000000000
 ```
 
-Always keep your token safe and reset it if you suspect it has been compromised.
+**Benefits:**
+- Suitable for automation
+- No interactive prompts
+- Service principal support
+- Fine-grained permissions
 
-## Using an SDK
+<Note>
+  Store client secrets securely. Never commit them to source control or share them publicly.
+</Note>
 
-If you use one of our official SDKs, you won't have to worry about any of the above — fetch your access token from the [Protocol dashboard](#) under API settings, and the client library will take care of the rest. All the client libraries use OAuth2 behind the scenes.
+### Username/Password
 
-<div className="not-prose">
-  <Button href="/sdks" variant="text" arrow="right">
-    <>Check out our list of first-party SDKs</>
+**Best for:** Development, testing, POC scenarios
+
+<Note type="warning">
+  **Not recommended for production use.** This method:
+  - Cannot bypass MFA
+  - Does not support Conditional Access
+  - Requires storing credentials
+  - May violate security policies
+</Note>
+
+Direct authentication with username and password:
+
+**Setup:**
+```
+Environment URL: https://org.crm.dynamics.com
+Auth Method: Username/Password
+Username: user@domain.com
+Password: your-password
+```
+
+Use this method only for:
+- Local development environments
+- Testing and proof-of-concepts
+- Environments without MFA requirements
+
+## Security Features
+
+### Encrypted Storage
+
+All sensitive credentials are encrypted using OS-native secure storage:
+
+- **macOS:** Keychain
+- **Windows:** DPAPI (Data Protection API)
+- **Linux:** libsecret
+
+**Encrypted fields:**
+- Client ID
+- Client Secret
+- Access Token
+- Refresh Token
+- Password
+
+### Automatic Migration
+
+If you're upgrading from an older version:
+- Plain-text connections are automatically encrypted on first launch
+- No manual intervention required
+- Backwards compatible
+
+### Token Management
+
+- Access tokens automatically refreshed before expiration
+- Refresh tokens securely stored and rotated
+- Failed refresh triggers re-authentication
+- No plaintext token storage
+
+## Managing Connections
+
+### Add Connection
+
+1. Click **"Add Connection"** button
+2. Fill in connection details
+3. Select authentication method
+4. Click **"Connect"**
+5. Complete authentication flow
+
+### Edit Connection
+
+1. Right-click connection in list
+2. Select **"Edit"**
+3. Modify details (name, URL, etc.)
+4. Re-authenticate if changing credentials
+
+### Delete Connection
+
+1. Right-click connection in list
+2. Select **"Delete"**
+3. Confirm deletion
+4. Encrypted credentials are securely removed
+
+### Set Active Connection
+
+1. Click on a connection in the list
+2. Connection becomes active
+3. Tools use the active connection
+4. Active connection highlighted in UI
+
+## Troubleshooting
+
+### Connection Failed
+
+**Symptom:** "Failed to connect" error
+
+**Solutions:**
+- Verify environment URL is correct
+- Check network connectivity
+- Ensure credentials are valid
+- Verify app registration permissions (OAuth)
+- Check MFA/Conditional Access policies
+
+### Token Expired
+
+**Symptom:** "Unauthorized" or "Token expired" error
+
+**Solutions:**
+- PPTB automatically refreshes tokens
+- If refresh fails, re-authenticate
+- Check refresh token is not revoked
+- Verify app registration is not disabled
+
+### MFA Required
+
+**Symptom:** "MFA required" error with username/password
+
+**Solution:**
+- Use Interactive Login instead
+- Username/password cannot bypass MFA
+- Configure OAuth app registration for automation
+
+### Insufficient Permissions
+
+**Symptom:** "Access denied" or "Insufficient privileges"
+
+**Solutions:**
+- Verify user has necessary security roles in Dataverse
+- Check app registration API permissions (OAuth)
+- Ensure admin consent granted for app permissions
+- Review Dataverse security settings
+
+## Best Practices
+
+<Row>
+  <Col>
+    **For End Users**
+    - Use Interactive Login
+    - Enable MFA on your account
+    - Don't share connections
+    - Review active connections regularly
+  </Col>
+  <Col>
+    **For Developers**
+    - Use OAuth for automation
+    - Rotate client secrets regularly
+    - Use service principals for CI/CD
+    - Never commit credentials to code
+  </Col>
+  <Col>
+    **For Administrators**
+    - Enforce MFA policies
+    - Use Conditional Access
+    - Review app registrations
+    - Audit connection usage
+  </Col>
+</Row>
+
+## Next Steps
+
+<div className="not-prose flex gap-3">
+  <Button href="/quickstart" variant="text" arrow="right">
+    <>Quick Start Guide</>
+  </Button>
+  <Button href="/tool-development" variant="text" arrow="right">
+    <>Build Tools</>
   </Button>
 </div>

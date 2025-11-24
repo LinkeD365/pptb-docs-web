@@ -139,7 +139,7 @@ function ActivePageMarker({
   return (
     <motion.div
       layout
-      className="absolute left-2 h-6 w-px bg-emerald-500"
+      className="absolute left-2 h-6 w-px bg-[#0078d4]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1, transition: { delay: 0.2 } }}
       exit={{ opacity: 0 }}
@@ -234,26 +234,32 @@ function NavigationGroup({
 
 export const navigation: Array<NavGroup> = [
   {
-    title: 'Guides',
+    title: 'Getting Started',
     links: [
       { title: 'Introduction', href: '/' },
-      { title: 'Quickstart', href: '/quickstart' },
-      { title: 'SDKs', href: '/sdks' },
+      { title: 'Quick Start', href: '/quickstart' },
+      { title: 'Tool Installation', href: '/tool-installation' },
       { title: 'Authentication', href: '/authentication' },
-      { title: 'Pagination', href: '/pagination' },
-      { title: 'Errors', href: '/errors' },
-      { title: 'Webhooks', href: '/webhooks' },
     ],
   },
   {
-    title: 'Resources',
+    title: 'Tool Development',
     links: [
-      { title: 'Contacts', href: '/contacts' },
-      { title: 'Conversations', href: '/conversations' },
-      { title: 'Messages', href: '/messages' },
-      { title: 'Groups', href: '/groups' },
-      { title: 'Attachments', href: '/attachments' },
+      { title: 'Overview', href: '/tool-development' },
+      { title: 'API Reference', href: '/tool-development/api-reference' },
+      { title: 'Publishing Tools', href: '/tool-development/publishing' },
     ],
+  },
+  {
+    title: 'ToolBox Development',
+    links: [
+      { title: 'Getting Started', href: '/toolbox-development' },
+      { title: 'Architecture', href: '/toolbox-development/architecture' },
+    ],
+  },
+  {
+    title: 'Contributing',
+    links: [{ title: 'Contribution Guide', href: '/contributing' }],
   },
 ]
 
@@ -261,9 +267,13 @@ export function Navigation(props: React.ComponentPropsWithoutRef<'nav'>) {
   return (
     <nav {...props}>
       <ul role="list">
-        <TopLevelNavItem href="/">API</TopLevelNavItem>
-        <TopLevelNavItem href="#">Documentation</TopLevelNavItem>
-        <TopLevelNavItem href="#">Support</TopLevelNavItem>
+        <TopLevelNavItem href="/">Home</TopLevelNavItem>
+        <TopLevelNavItem href="https://www.powerplatformtoolbox.com">
+          Website
+        </TopLevelNavItem>
+        <TopLevelNavItem href="https://github.com/PowerPlatformToolBox">
+          GitHub
+        </TopLevelNavItem>
         {navigation.map((group, groupIndex) => (
           <NavigationGroup
             key={group.title}
@@ -272,8 +282,12 @@ export function Navigation(props: React.ComponentPropsWithoutRef<'nav'>) {
           />
         ))}
         <li className="sticky bottom-0 z-10 mt-6 min-[416px]:hidden">
-          <Button href="#" variant="filled" className="w-full">
-            Sign in
+          <Button
+            href="https://github.com/PowerPlatformToolBox/desktop-app/releases"
+            variant="filled"
+            className="w-full"
+          >
+            Download
           </Button>
         </li>
       </ul>

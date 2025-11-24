@@ -1,0 +1,314 @@
+export const metadata = {
+  title: 'Publishing Your Tool',
+  description: 'Learn how to package, publish to npm, and submit your tool to the Power Platform Tool Box registry',
+}
+
+export const sections = []
+
+# Publishing Your Tool
+
+Once you've tested your tool locally and are ready to share it with the community, follow this guide to publish it to npm and submit it to the ToolBox registry. {{ className: 'lead' }}
+
+## Prerequisites
+
+Before publishing, ensure your tool:
+
+- ✅ Builds successfully without errors
+- ✅ Has been tested in local debug mode
+- ✅ Follows the [Tool Development Guide](/tool-development)
+- ✅ Has complete `package.json` metadata
+- ✅ Has appropriate license (open source recommended)
+- ✅ Has documentation (README.md)
+
+## Step 1: Prepare Your Package
+
+### Update package.json
+
+Ensure all required fields are present:
+
+```json
+{
+  "name": "@your-org/your-tool-name",
+  "version": "1.0.0",
+  "displayName": "Your Tool Name",
+  "description": "Clear, concise description of what your tool does",
+  "main": "index.html",
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "keywords": [
+    "powerplatform",
+    "dataverse",
+    "toolbox",
+    "power-apps"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/your-tool"
+  },
+  "homepage": "https://github.com/yourusername/your-tool#readme",
+  "bugs": {
+    "url": "https://github.com/yourusername/your-tool/issues"
+  }
+}
+```
+
+<Properties>
+  <Property name="name" type="string" required>
+    Package name (use scoped naming: `@org/tool-name`)
+  </Property>
+  <Property name="displayName" type="string" required>
+    Human-readable name shown in ToolBox
+  </Property>
+  <Property name="description" type="string" required>
+    Brief description (1-2 sentences)
+  </Property>
+  <Property name="main" type="string" required>
+    Entry point file (usually `index.html`)
+  </Property>
+  <Property name="keywords" type="array" required>
+    Tags for discoverability (include `powerplatform`, `dataverse`, `toolbox`)
+  </Property>
+  <Property name="repository" type="object" required>
+    GitHub repository URL for source code review
+  </Property>
+</Properties>
+
+## Step 2: Build Your Tool
+
+Build your tool to create the distributable files:
+
+```bash
+npm run build
+```
+
+Verify that your `dist/` directory contains:
+- `index.html` (entry point)
+- All compiled JavaScript/CSS files
+- Any required assets (images, icons, etc.)
+
+## Step 3: Finalize Package
+
+Run the finalization script to prepare your package:
+
+```bash
+npm run finalize-package
+```
+
+This ensures your package is ready for npm with correct file structure and dependencies.
+
+## Step 4: Publish to npm
+
+### First-Time Setup
+
+If you haven't published to npm before:
+
+```bash
+# Create npm account (if needed)
+npm login
+```
+
+### Publish Your Package
+
+```bash
+# For scoped packages
+npm publish --access public
+
+# For unscoped packages
+npm publish
+```
+
+<Note>
+  **Scoped packages** (e.g., `@myorg/tool-name`) require the `--access public` flag to be publicly accessible.
+</Note>
+
+### Verify Publication
+
+Check that your package is live:
+
+```bash
+npm view @your-org/your-tool-name
+```
+
+Or visit: `https://www.npmjs.com/package/@your-org/your-tool-name`
+
+## Step 5: Test Published Version
+
+Before submitting to the registry, test your published npm package:
+
+1. **Open Power Platform Tool Box**
+2. **Navigate to Debug section**
+3. **In "Install from npm" section:**
+   - Enter your package name: `@your-org/your-tool-name`
+   - Click **Install**
+4. **Test thoroughly** to ensure everything works as expected
+
+## Step 6: Submit to ToolBox Registry
+
+Once your tool is working correctly from npm:
+
+### Fill Out the Tool Submission Form
+
+Visit the [Tool Submission Form](https://github.com/PowerPlatformToolBox/pptb-web/issues/new?template=tool-submission.yml) and provide:
+
+<Properties>
+  <Property name="npm Package Name" type="string" required>
+    Your published npm package name (e.g., `@your-org/tool-name`)
+  </Property>
+  <Property name="Display Name" type="string" required>
+    How your tool appears in ToolBox
+  </Property>
+  <Property name="Description" type="string" required>
+    Brief description of functionality (markdown supported)
+  </Property>
+  <Property name="Author Name/Organization" type="string" required>
+    Your name or organization
+  </Property>
+  <Property name="GitHub Repository URL" type="string" required>
+    Link to source code for security review
+  </Property>
+  <Property name="Homepage/Documentation URL" type="string">
+    Optional link to documentation or homepage
+  </Property>
+  <Property name="Tags/Categories" type="array" required>
+    Select from: Data Management, Development, Utilities, Reporting, Administration
+  </Property>
+</Properties>
+
+### Automated Validation
+
+After submission, automated checks will validate:
+
+- ✅ npm package exists and is accessible
+- ✅ Package follows naming conventions
+- ✅ License is appropriate (open source preferred)
+- ✅ No known security vulnerabilities
+- ✅ Package structure is correct
+
+### Manual Review
+
+Maintainers will review your submission for:
+
+- Security (no malicious code)
+- Quality (follows guidelines)
+- Functionality (works as described)
+- Documentation (README is clear)
+
+**Review typically takes 48-72 hours.**
+
+## Versioning and Updates
+
+### Semantic Versioning
+
+Follow [Semantic Versioning](https://semver.org/):
+
+- **Patch** (1.0.`X`): Bug fixes
+  ```bash
+  npm version patch
+  ```
+
+- **Minor** (1.`X`.0): New features (backward compatible)
+  ```bash
+  npm version minor
+  ```
+
+- **Major** (`X`.0.0): Breaking changes
+  ```bash
+  npm version major
+  ```
+
+### Publishing Updates
+
+```bash
+# Update version
+npm version patch  # or minor, or major
+
+# Build
+npm run build
+
+# Publish
+npm publish --access public
+```
+
+<Note>
+  The ToolBox registry automatically syncs with npm. Users will receive update notifications when new versions are published.
+</Note>
+
+## Best Practices
+
+### Before Publishing
+
+- ✅ Test thoroughly in debug mode
+- ✅ Write comprehensive README with usage instructions
+- ✅ Include screenshots or demo GIFs
+- ✅ Document all features and limitations
+- ✅ Add proper error handling
+- ✅ Follow UI/UX guidelines for consistency
+
+### After Publishing
+
+- ✅ Monitor GitHub issues for bug reports
+- ✅ Respond to user feedback promptly
+- ✅ Keep dependencies up to date
+- ✅ Maintain a CHANGELOG
+- ✅ Provide migration guides for breaking changes
+- ✅ Consider semantic versioning strictly
+
+### Security
+
+- ⚠️ Never include hardcoded credentials or API keys
+- ⚠️ Validate all user inputs
+- ⚠️ Use HTTPS for external API calls
+- ⚠️ Don't access sensitive system resources
+- ⚠️ Follow principle of least privilege
+
+## Troubleshooting
+
+### npm publish fails
+
+**Error:** `You must be logged in to publish packages.`
+
+**Solution:**
+```bash
+npm login
+# Re-try publish
+```
+
+**Error:** `Package name too similar to existing package.`
+
+**Solution:** Choose a more unique name or use scoped naming: `@your-org/tool-name`
+
+### Tool not appearing in registry
+
+**Check:**
+1. Ensure automated validation passed
+2. Check submission issue for maintainer feedback
+3. Verify npm package is publicly accessible
+4. Confirm package.json has all required fields
+
+### Users reporting issues
+
+**Steps:**
+1. Reproduce the issue in debug mode
+2. Fix in your local version
+3. Update version number
+4. Publish update to npm
+5. Notify users in the issue thread
+
+## Next Steps
+
+<div className="not-prose mb-16 mt-6 flex gap-3">
+  <Button href="/tool-development/best-practices" arrow="right">
+    <>Best Practices</>
+  </Button>
+  <Button href="/tool-development/examples" variant="outline">
+    <>View Examples</>
+  </Button>
+</div>
+
+## Support
+
+Need help publishing your tool?
+
+- **GitHub Discussions:** [Ask the community](https://github.com/PowerPlatformToolBox/desktop-app/discussions)
+- **Issues:** [Report problems](https://github.com/PowerPlatformToolBox/desktop-app/issues)
+- **Documentation:** [Full tool dev guide](https://github.com/PowerPlatformToolBox/desktop-app/blob/main/docs/TOOL_DEV.md)

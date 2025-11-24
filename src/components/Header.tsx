@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { forwardRef } from 'react'
 
 import { Button } from '@/components/Button'
-import { Logo } from '@/components/Logo'
 import {
   MobileNavigation,
   useIsInsideMobileNavigation,
@@ -13,6 +12,7 @@ import {
 import { MobileSearch, Search } from '@/components/Search'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { CloseButton } from '@headlessui/react'
+import Image from 'next/image'
 
 function TopLevelNavItem({
   href,
@@ -75,15 +75,25 @@ export const Header = forwardRef<
       <div className="flex items-center gap-5 lg:hidden">
         <MobileNavigation />
         <CloseButton as={Link} href="/" aria-label="Home">
-          <Logo className="h-6" />
+          <Image
+            src="../images/app-icon.svg"
+            alt="Power Platform Tool Box"
+            className="h-6"
+            width="24"
+            height="24"
+          />
         </CloseButton>
       </div>
       <div className="flex items-center gap-5">
         <nav className="hidden md:block">
           <ul role="list" className="flex items-center gap-8">
-            <TopLevelNavItem href="/">API</TopLevelNavItem>
-            <TopLevelNavItem href="#">Documentation</TopLevelNavItem>
-            <TopLevelNavItem href="#">Support</TopLevelNavItem>
+            <TopLevelNavItem href="/">Docs Home</TopLevelNavItem>
+            <TopLevelNavItem href="https://www.powerplatformtoolbox.com">
+              Main Website
+            </TopLevelNavItem>
+            <TopLevelNavItem href="https://github.com/PowerPlatformToolBox">
+              GitHub
+            </TopLevelNavItem>
           </ul>
         </nav>
         <div className="hidden md:block md:h-5 md:w-px md:bg-zinc-900/10 md:dark:bg-white/15" />
@@ -92,7 +102,9 @@ export const Header = forwardRef<
           <ThemeToggle />
         </div>
         <div className="hidden min-[416px]:contents">
-          <Button href="#">Sign in</Button>
+          <Button href="https://github.com/PowerPlatformToolBox/desktop-app/releases/latest">
+            Download
+          </Button>
         </div>
       </div>
     </motion.div>

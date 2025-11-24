@@ -1,0 +1,383 @@
+export const metadata = {
+  title: 'Contributing',
+  description: 'Learn how to contribute to Power Platform Tool Box - guidelines for PRs, commits, and collaboration',
+}
+
+export const sections = []
+
+# Contributing to Power Platform Tool Box
+
+Thank you for your interest in contributing to Power Platform Tool Box! This guide will help you understand our contribution process and requirements. {{ className: 'lead' }}
+
+## Code of Conduct
+
+We are committed to providing a welcoming and inspiring community for all. Please read and follow our [Code of Conduct](https://github.com/PowerPlatformToolBox/desktop-app/blob/main/CODE_OF_CONDUCT.md).
+
+### Our Standards
+
+Examples of behavior that contributes to a positive environment:
+
+- ✅ Demonstrating empathy and kindness toward others
+- ✅ Being respectful of differing opinions and experiences
+- ✅ Giving and gracefully accepting constructive feedback
+- ✅ Accepting responsibility and learning from mistakes
+- ✅ Focusing on what is best for the community
+
+Examples of unacceptable behavior:
+
+- ❌ Trolling, insulting, or derogatory comments
+- ❌ Public or private harassment
+- ❌ Publishing others' private information
+- ❌ Other conduct inappropriate in a professional setting
+
+## Getting Started
+
+### Prerequisites
+
+Before contributing, ensure you have:
+
+- Node.js 18 or higher
+- pnpm 10 or higher
+- Git
+- GitHub account
+
+### Setup Development Environment
+
+1. **Fork the repository** on GitHub
+2. **Clone your fork:**
+   ```bash
+   git clone https://github.com/YOUR-USERNAME/desktop-app.git
+   cd desktop-app
+   ```
+3. **Install dependencies:**
+   ```bash
+   pnpm install
+   ```
+4. **Create a branch** (see naming conventions below)
+5. **Make your changes**
+6. **Test thoroughly**
+
+## How to Contribute
+
+### Reporting Bugs
+
+Found a bug? [Open an issue](https://github.com/PowerPlatformToolBox/desktop-app/issues/new?template=issue-form-bug.yml) with:
+
+- Clear, descriptive title
+- Steps to reproduce
+- Expected vs actual behavior
+- Screenshots (if applicable)
+- Environment details (OS, version)
+
+### Suggesting Features
+
+Have an idea? [Request a feature](https://github.com/PowerPlatformToolBox/desktop-app/issues/new?template=issues-form-feature-request.yaml) with:
+
+- Clear description of the feature
+- Use case and benefits
+- Proposed implementation (optional)
+
+### Submitting Pull Requests
+
+<Note>
+  **Important:** All pull requests must target the **`dev`** branch, not `main`.
+</Note>
+
+## Pull Request Process
+
+### 1. Create Your Branch
+
+Create a branch from `dev` following our naming convention:
+
+```bash
+# Ensure you're on dev and up to date
+git checkout dev
+git pull origin dev
+
+# Create your branch
+git checkout -b <type>/<short-description>
+```
+
+**Branch Naming Conventions:**
+
+<Properties>
+  <Property name="feature/" type="prefix">
+    New features
+    <br />
+    Example: `feature/add-connection-export`
+  </Property>
+  <Property name="fix/" type="prefix">
+    Bug fixes
+    <br />
+    Example: `fix/tool-loading-error`
+  </Property>
+  <Property name="docs/" type="prefix">
+    Documentation changes
+    <br />
+    Example: `docs/update-api-guide`
+  </Property>
+  <Property name="refactor/" type="prefix">
+    Code refactoring
+    <br />
+    Example: `refactor/tool-manager`
+  </Property>
+  <Property name="chore/" type="prefix">
+    Maintenance tasks
+    <br />
+    Example: `chore/update-dependencies`
+  </Property>
+</Properties>
+
+### 2. Make Your Changes
+
+Write clean, maintainable code following our [coding standards](#coding-standards).
+
+### 3. Test Your Changes
+
+```bash
+# Lint code
+pnpm run lint
+
+# Build
+pnpm run build
+
+# Create local package
+pnpm run package
+
+# Install and test the package
+# (Use the generated installer in dist/)
+```
+
+### 4. Commit Your Changes
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/) specification:
+
+**Format:** `<type>(<scope>): <subject>`
+
+**Examples:**
+```bash
+feat: add connection export functionality
+feat(tools): add tool verification system
+fix: resolve tool loading error on startup
+fix(connections): handle invalid connection URLs
+docs: update README with new API examples
+docs(api): add missing type definitions
+style: format code according to ESLint rules
+refactor: restructure tool manager for better maintainability
+refactor(auth): simplify authentication flow
+test: add unit tests for settings manager
+chore: update dependencies to latest versions
+chore(build): update TypeScript configuration
+```
+
+**Commit Types:**
+
+- `feat` - New features
+- `fix` - Bug fixes
+- `docs` - Documentation changes
+- `style` - Code style changes (formatting)
+- `refactor` - Code refactoring without changing functionality
+- `test` - Test additions or updates
+- `chore` - Maintenance tasks, dependency updates
+- `perf` - Performance improvements
+- `ci` - CI/CD changes
+
+### 5. Push to Your Fork
+
+```bash
+git push origin <your-branch-name>
+```
+
+### 6. Create Pull Request
+
+1. Go to your fork on GitHub
+2. Click "New Pull Request"
+3. **Ensure base is `dev`** (not `main`)
+4. Fill out the PR template completely
+
+**PR Template Checklist:**
+
+- ✅ Use meaningful title: `[Type] Brief description`
+  - Example: `[Feature] Add connection export functionality`
+- ✅ PR Types: `[Feature]`, `[Fix]`, `[Docs]`, `[Refactor]`, `[Chore]`, `[Test]`
+- ✅ Include description of what changed and why
+- ✅ Reference related issues using `#issue-number`
+- ✅ Test the change (compile and run)
+- ✅ Run `pnpm run package` and test local install
+- ✅ For major changes: Get approval via discussion first
+
+### 7. PR Review Checklist
+
+Before requesting review, ensure:
+
+- ✅ Meaningful title for the pull request
+- ✅ Tested changes in your own code (compiled and ran)
+- ✅ Followed [contribution guidelines](https://github.com/PowerPlatformToolBox/desktop-app/CONTRIBUTING.md#pull-requests)
+- ✅ Mentioned bug/feature issue number
+- ✅ Generated local install copy with `pnpm run package`
+- ✅ Installed and tested local copy
+- ✅ Major changes: Created discussion and got maintainer approval
+
+## Coding Standards
+
+### TypeScript Guidelines
+
+- ✅ Enable strict mode
+- ✅ Avoid using `any` when possible
+- ✅ Define interfaces for complex objects
+- ✅ Export types that may be used by tools
+- ✅ Use meaningful variable and function names
+- ✅ Keep functions small and focused
+
+### Code Style
+
+- ✅ Use TypeScript for all new code
+- ✅ Follow existing code style and conventions
+- ✅ Add comments for complex logic
+- ✅ Use async/await over callbacks
+- ✅ Handle errors appropriately
+
+### File Organization
+
+- Keep related code together
+- Use clear, descriptive file names
+- Follow existing project structure
+- Separate concerns appropriately
+
+## Documentation
+
+When adding new features, update:
+
+1. **README.md** - If it affects user-facing functionality
+2. **docs/TOOLBOX_DEV.md** - For ToolBox-related changes
+3. **docs/ARCHITECTURE.md** - For architectural changes
+4. **Inline code comments** - For complex logic
+5. **Type definitions** - Update `packages/types/` and publish new version to npm
+
+All documentation files are in the `docs/` directory.
+
+## Testing
+
+Currently establishing testing infrastructure. When adding features:
+
+1. Consider how it can be tested
+2. Manually test your changes
+3. Document test scenarios
+4. Test on multiple platforms when possible
+
+## Release Process
+
+Understanding the release workflow:
+
+### Development Branch (`dev`)
+
+```
+PR → dev branch → Automated nightly pre-release
+```
+
+- All PRs target `dev`
+- Merged PRs trigger nightly builds
+- Version: `1.0.0-dev.YYYYMMDD`
+- Used for testing and feedback
+
+### Production Branch (`main`)
+
+```
+dev branch → main branch → Automated stable release
+```
+
+- After testing on `dev`, merge to `main`
+- Triggers stable release build
+- Version: `1.0.0`
+- Published to GitHub Releases
+
+## PR Requirements Summary
+
+<table>
+  <thead>
+    <tr>
+      <th>Requirement</th>
+      <th>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Target Branch</strong></td>
+      <td><code>dev</code> (not <code>main</code>)</td>
+    </tr>
+    <tr>
+      <td><strong>Branch Name</strong></td>
+      <td>
+        <code>feature/</code>, <code>fix/</code>, <code>docs/</code>, <code>refactor/</code>, <code>chore/</code>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Commit Format</strong></td>
+      <td>Conventional Commits: <code>&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;</code></td>
+    </tr>
+    <tr>
+      <td><strong>PR Title</strong></td>
+      <td><code>[Type] Brief description</code></td>
+    </tr>
+    <tr>
+      <td><strong>Testing</strong></td>
+      <td>
+        <code>pnpm run lint</code>, <code>pnpm run build</code>, <code>pnpm run package</code>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Documentation</strong></td>
+      <td>Update relevant docs if needed</td>
+    </tr>
+    <tr>
+      <td><strong>Major Changes</strong></td>
+      <td>Require discussion and maintainer approval first</td>
+    </tr>
+  </tbody>
+</table>
+
+## Community
+
+### Getting Help
+
+- **GitHub Discussions:** [Ask questions](https://github.com/PowerPlatformToolBox/desktop-app/discussions)
+- **Issues:** [Report problems](https://github.com/PowerPlatformToolBox/desktop-app/issues)
+- **Documentation:** [Read the docs](https://github.com/PowerPlatformToolBox/desktop-app/blob/main/README.md)
+
+### Stay Connected
+
+- Star the repository to stay updated
+- Watch for notifications on your PRs
+- Join discussions to help others
+- Share your tools with the community
+
+## Recognition
+
+Contributors are recognized in:
+
+- README.md contributors section
+- Release notes for significant contributions
+- Community highlights and showcases
+
+We value all contributions, from code to documentation to community support!
+
+## Questions?
+
+If you have questions, feel free to:
+
+- Open an issue for discussion
+- Ask in GitHub Discussions
+- Reach out to maintainers
+
+**Thank you for contributing to Power Platform Tool Box!** 🚀
+
+## Next Steps
+
+<div className="not-prose mb-16 mt-6 flex gap-3">
+  <Button href="/toolbox-development" arrow="right">
+    <>ToolBox Development</>
+  </Button>
+  <Button href="/tool-development" variant="outline">
+    <>Tool Development</>
+  </Button>
+</div>
